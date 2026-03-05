@@ -1,39 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>The Nyx Room</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Nyx Room</title>
 
-<style>
-body {
-    margin:0;
-    background:black;
-    color:white;
-    font-family:Helvetica, Arial, sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    flex-direction:column;
-}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Elegant luxury font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
 
-h1 {
-    font-size:60px;
-    letter-spacing:8px;
-}
+  <style>
+    :root{
+      --bg:#050506;
+      --fg: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.55);
+      --line: rgba(255,255,255,.10);
+      --glow: rgba(200,220,255,.14);
+    }
 
-p {
-    margin-top:20px;
-    font-size:18px;
-    opacity:0.7;
-}
-</style>
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 900px at 50% 52%, rgba(255,255,255,.06), transparent 60%),
+                  radial-gradient(900px 700px at 20% 20%, rgba(170,210,255,.05), transparent 55%),
+                  radial-gradient(900px 700px at 80% 80%, rgba(230,200,255,.04), transparent 55%),
+                  var(--bg);
+      color:var(--fg);
+      overflow:hidden;
+      font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing: .02em;
+    }
+
+    /* Subtle moving haze */
+    .haze{
+      position:fixed; inset:-40%;
+      background:
+        radial-gradient(closest-side at 30% 30%, rgba(255,255,255,.07), transparent 55%),
+        radial-gradient(closest-side at 70% 60%, rgba(200,220,255,.06), transparent 58%),
+        radial-gradient(closest-side at 60% 20%, rgba(255,255,255,.05), transparent 60%);
+      filter: blur(55px);
+      opacity:.55;
+      animation: drift 18s ease-in-out infinite;
+      transform: translate3d(0,0,0);
+      pointer-events:none;
+      mix-blend-mode: screen;
+    }
+    @keyframes drift{
+      0%   {transform: translate3d(-2%, -1%, 0) scale(1.05) rotate(0deg)}
+      50%  {transform: translate3d(2%,  2%, 0) scale(1.10) rotate(6deg)}
+      100% {transform: translate3d(-2%, -1%, 0) scale(1.05) rotate(0deg)}
+    }
+
+    /* Film grain */
+    .grain{
+      position:fixed; inset:-30%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      opacity:.12;
+      mix-blend-mode: overlay;
+      animation: grain 6s steps(10) infinite;
+      pointer-events:none;
+    }
+    @keyframes grain{
+      0%{transform:translate(0,0)}
+      10%{transform:translate(-3%,-2%)}
+      20%{transform:translate(-5%,1%)}
+      30%{transform:translate(2%,-5%)}
+      40%{transform:translate(-2%,4%)}
+      50%{transform:translate(-5%,2%)}
+      60%{transform:translate(4%,0%)}
+      70%{transform:translate(0%,5%)}
+      80%{transform:translate(-4%,0%)}
+      90%{transform:translate(3%,2%)}
+      100%{transform:translate(0,0)}
+    }
+
+    /* Subtle vignette */
+    .vignette{
+      position:fixed; inset:0;
+      background: radial-gradient(65% 60% at 50% 55%, transparent 40%, rgba(0,0,0,.55) 100%);
+      pointer-events:none;
+    }
+
+    .wrap{
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:28px;
+      position:relative;
+    }
+
+    .card{
+      width:min(920px, 96vw);
+      padding: clamp(28px, 5vw, 54px);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow:
+        0 20px 80px rgba(0,0,0,.55),
+        0 0 0 1px rgba(255,255,255,.03) inset;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
+      transform: translateY(10px);
+      opacity:0;
+      animation: reveal 1.6s cubic-bezier(.2,.9,.2,1) .2s forwards;
+    }
+    @keyframes reveal{
+      to{opacity:1; transform: translateY(0)}
+    }
+
+    /* Thin highlight sweep */
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.12) 36%, transparent 55%);
+      transform: translateX(-35%);
+      opacity:.0;
+      animation: sweep 7.5s ease-in-out 1.2s infinite;
+      pointer-events:none;
+    }
+    @keyframes sweep{
+      0%   {transform: translateX(-45%); opacity:0}
+      12%  {opacity:.28}
+      26%  {transform: translateX(45%); opacity:0}
+      100% {opacity:0}
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      margin-bottom: 18px;
+      opacity:0;
+      animation: fadeUp .9s ease .9s forwards;
+    }
+    .dot{
+      width:5px;height:5px;border-radius:999px;
+      background: rgba(255,255,255,.45);
+      box-shadow: 0 0 18px rgba(255,255,255,.18);
+    }
+    .rule{
+      height:1px;
+      width:min(210px, 22vw);
+      background: linear-gradient(90deg, transparent, var(--line), transparent);
+    }
+
+    .title{
+      text-align:center;
+      font-weight:300;
+      font-size: clamp(40px, 6vw, 76px);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      margin: 6px 0 18px;
+      line-height:1.06;
+
+      opacity:0;
+      transform: translateY(10px);
+      animation: titleIn 1.4s cubic-bezier(.2,.9,.2,1) .55s forwards;
+      text-shadow:
+        0 0 22px rgba(255,255,255,.06),
+        0 0 70px var(--glow);
+    }
+    @keyframes titleIn{
+      to{opacity:1; transform: translateY(0)}
+    }
+
+    .subtitle{
+      text-align:center;
+      font-weight:300;
+      font-size: clamp(13px, 1.35vw, 16px);
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--muted);
+
+      opacity:0;
+      animation: fadeUp .9s ease 1.2s forwards;
+    }
+
+    .pulse{
+      margin: 26px auto 0;
+      width: 160px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+      opacity:.55;
+      position:relative;
+      overflow:hidden;
+      border-radius: 20px;
+      animation: fadeUp .9s ease 1.35s forwards;
+    }
+    .pulse::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      transform: translateX(-60%);
+      animation: pulse 2.8s ease-in-out infinite;
+      opacity:.85;
+    }
+    @keyframes pulse{
+      0%{transform:translateX(-60%); opacity:.25}
+      50%{opacity:.95}
+      100%{transform:translateX(60%); opacity:.25}
+    }
+
+    @keyframes fadeUp{
+      from{opacity:0; transform: translateY(10px)}
+      to{opacity:1; transform: translateY(0)}
+    }
+
+    /* Footer microtext */
+    .footer{
+      margin-top: 22px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      color: rgba(255,255,255,.38);
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      opacity:0;
+      animation: fadeUp .9s ease 1.55s forwards;
+      user-select:none;
+    }
+
+    /* Small corner mark */
+    .mark{
+      position:fixed;
+      left:22px; bottom:18px;
+      font-size:11px;
+      letter-spacing:.22em;
+      color: rgba(255,255,255,.28);
+      text-transform: uppercase;
+      opacity:.8;
+      user-select:none;
+    }
+
+    /* Mobile spacing refinement */
+    @media (max-width:520px){
+      .topline{margin-bottom:12px}
+      .rule{width: 24vw}
+      .title{letter-spacing:.18em}
+      .pulse{width:120px}
+    }
+  </style>
 </head>
 
 <body>
+  <div class="haze"></div>
+  <div class="grain"></div>
+  <div class="vignette"></div>
 
-<h1>The Nyx Room</h1>
-<p>Coming Soon</p>
+  <div class="wrap">
+    <main class="card" role="main" aria-label="The Nyx Room coming soon">
+      <div class="topline">
+        <div class="rule"></div>
+        <div class="dot"></div>
+        <div class="rule"></div>
+      </div>
 
+      <h1 class="title">The Nyx Room</h1>
+      <div class="subtitle">Coming Soon</div>
+      <div class="pulse" aria-hidden="true"></div>
+
+      <div class="footer">
+        <span>PRIVATE</span>
+        <span>•</span>
+        <span>CURATED</span>
+        <span>•</span>
+        <span>IN THE MAKING</span>
+      </div>
+    </main>
+  </div>
+
+  <div class="mark">thenyxroom.com</div>
 </body>
 </html>
